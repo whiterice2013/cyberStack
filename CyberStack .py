@@ -34,8 +34,8 @@ def input(key):
                 destroy(box)
 
 # Physics settings
-gravity = 0.11  # How fast the player falls
-jump_strength = 1.1  
+gravity = 0.3  # How fast the player falls
+jump_strength = 7  # Initial jump speed
 y_velocity = 0  # Player's vertical velocity
 can_jump = True  # Prevent multiple jumps
 
@@ -49,24 +49,21 @@ def update():
 
     # Apply gravity
     if not is_on_ground():
-        y_velocity -= gravity  # Fall smoothly
+        y_velocity -= gravity  # Gravity slows down the jump and makes falling smooth
         player.y += y_velocity
-
+    else:
         y_velocity = 0  # Stop falling when on a block
-        can_jump = True  # Allow jumping again
+        can_jump = True  # Reset jump ability
 
+        # Jumping (now with a single press)
+        if held_keys['space'] and can_jump:
+            can_jump = False  # Disable jumping until the player lands
+            y_velocity = jump_strength  # Give an initial strong push upwards
+            player.y += y_velocity
 
-# Jumping function (only triggered once per keypress)
-def jump():
-    global y_velocity, can_jump
-    if can_jump:
-        y_velocity = jump_strength
-        player.y += y_velocity
-        can_jump = False  # Prevent multiple jumps
-
-# Bind jump to space key (only on press, not hold)
-player.jump = jump  # Attach jump function
-player.input = lambda key: jump() if key == 'space' else None
+    # Prevent player from falling too far
+    if player.y < -10:
+        player.position = (0, 5, 0)  # Reset to a safe position
 
 # Run the Ursina app
 app.run()
