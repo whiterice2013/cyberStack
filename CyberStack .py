@@ -10,58 +10,63 @@ player = FirstPersonController()
 # Set up the sky
 Sky()
 
-# Store blocks in a list to track them
+# Store blocks in a list
 boxes = []
 
-# Create the ground with a simple 20x20 grid of blocks
+# Create a 20x20 ground
 for i in range(20):
     for j in range(20):
         box = Button(color=color.white, model='cube', position=(j, 0, i),
                      texture='grass.png', parent=scene, origin_y=0.5)
         boxes.append(box)
 
-# Gravity settings
-g = 1  # gravitational acceleration
-y_velocity = 0  # Initial vertical velocity (0 means no movement)
-
-# Time counter for gravity simulation
-falling = True  # True when player is falling, False when jumping
-
 # Function to handle block placement and removal
 def input(key):
     for box in boxes:
         if box.hovered:
-            if key == 'right mouse down':  # Place a block in the direction of the mouse
+            if key == 'right mouse down':  # Place a block
                 new = Button(color=color.white, model='cube', position=box.position + mouse.normal,
                              texture='grass.png', parent=scene, origin_y=0.5)
                 boxes.append(new)
 
-            if key == 'left mouse down':  # Destroy the block that is hovered over
+            if key == 'left mouse down':  # Destroy a block
                 boxes.remove(box)
                 destroy(box)
 
-# Function to update the game mechanics (like gravity, jumping, and movement)
+# Physics settings
+gravity = 0.11  # How fast the player falls
+jump_strength = 1.1  
+y_velocity = 0  # Player's vertical velocity
+can_jump = True  # Prevent multiple jumps
+
+def is_on_ground():
+    """ Check if there's a block under the player """
+    hit_info = raycast(player.position, direction=(0, -1, 0), distance=1.1, ignore=[player]) 
+    return hit_info.hit  # Returns True if standing on a block
+
 def update():
-    global y_velocity, falling
+    global y_velocity, can_jump
 
-    # Gravity effect (falling down)
-    if player.y > 0:  # The player is falling (y > 0)
-        y_velocity += g  # Increase downward speed each frame
+    # Apply gravity
+    if not is_on_ground():
+        y_velocity -= gravity  # Fall smoothly
+        player.y += y_velocity
 
-    if player.y <= 0:  # When player hits the ground
-        player.y = 0
-        y_velocity = 0  # Reset velocity to 0 (no downward speed)
-        falling = False  # Stop falling once the player touches the ground
+        y_velocity = 0  # Stop falling when on a block
+        can_jump = True  # Allow jumping again
 
-    # Apply gravity (moving the player down)
-    player.y -= y_velocity  # Decrease the player's y position by the velocity
 
-    # Jumping action
-    if not falling and held_keys['space']:  # Jump if on the ground and space is pressed
-        y_velocity = -10  # Give the player an upward velocity to simulate jumping
-        falling = True  # Start the falling effect after jumping
+# Jumping function (only triggered once per keypress)
+def jump():
+    global y_velocity, can_jump
+    if can_jump:
+        y_velocity = jump_strength
+        player.y += y_velocity
+        can_jump = False  # Prevent multiple jumps
 
-    # Add additional mechanics like crouching, sprinting, etc.
+# Bind jump to space key (only on press, not hold)
+player.jump = jump  # Attach jump function
+player.input = lambda key: jump() if key == 'space' else None
 
 # Run the Ursina app
 app.run()
