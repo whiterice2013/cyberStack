@@ -1,0 +1,18 @@
+[project]
+name = "cyberstack"
+version = "0.1.0"
+description = "A futuristic coding project"
+requires-python = ">=3.11"
+dependencies = [
+  "ursina",
+  "pygame"
+]
+
+[project.optional-dependencies]
+dev = [
+  "ruff"
+]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"

@@ -1,0 +1,5 @@
+ursina
+pygame
+
+[dev]
+ruff

@@ -1,0 +1,9 @@
+Metadata-Version: 2.4
+Name: cyberstack
+Version: 0.1.0
+Summary: A futuristic coding project
+Requires-Python: >=3.11
+Requires-Dist: ursina
+Requires-Dist: pygame
+Provides-Extra: dev
+Requires-Dist: ruff; extra == "dev"
