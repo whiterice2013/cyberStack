@@ -1,0 +1,21 @@
+# Ignore Python bytecode files
+*.pyc
+*.pyo
+__pycache__/
+
+# Ignore virtual environment directories
+venv/
+env/
+.venv/
+.env/
+
+# Ignore Ursina-related temporary files
+ursina_data/
+ursina_cache/
+
+# Ignore general IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
