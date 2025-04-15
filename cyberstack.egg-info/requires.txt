@@ -1,5 +1,0 @@
-ursina
-pygame
-
-[dev]
-ruff
