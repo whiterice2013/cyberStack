@@ -20,12 +20,6 @@ base_x, base_y = WIDTH/2-25, HIEGHT/2-25
 # Enemy setup
 enemies = []
 
-# Create a few enemies
-for i in range(5):
-    enemy_x = random.randint(50, 450)
-    enemy_y = random.randint(50, 150)
-    enemies.append([enemy_x, enemy_y])
-
 # Player coins
 coins = 0
 
@@ -37,7 +31,17 @@ while running:
             running = False
 
     # Fill the screen
-    screen.fill((200, 200, 200))
+    screen.fill((0, 0, 0))
+
+    if pygame.time.get_ticks() % random.randint(1000, 8000) < 1:  # Check if 5 seconds have passed (5000 ms)
+        for _ in range(random.randint(1,5)):
+            if random.choice([True, False]):  # Randomly decide if the enemy spawns on the top/bottom or left/right
+                enemy_x = random.choice([0, WIDTH])  # Left or right edge
+                enemy_y = random.uniform(0, HIEGHT)  # Anywhere along the height
+            else:
+                enemy_x = random.uniform(0, WIDTH)  # Anywhere along the width
+                enemy_y = random.choice([0, HIEGHT])  # Top or bottom edge
+            enemies.append([enemy_x, enemy_y])
 
     for enemy in enemies:
             # Calculate the direction the enemy should move
@@ -50,15 +54,15 @@ while running:
             dy /= distance
 
             # Move the enemy a little towards the center
-            enemy[0] += dx * 0.1  # Move 2 pixels per frame in the x direction
-            enemy[1] += dy * 0.1  # Move 2 pixels per frame in the y direction
+            enemy[0] += dx * 1/100  # Move 2 pixels per frame in the x direction
+            enemy[1] += dy * 1/100  # Move 2 pixels per frame in the y direction
 
     # Draw the base
     pygame.draw.rect(screen, BASE_COLOR, (base_x, base_y, 50, 50))
 
     # Draw enemies
     for enemy in enemies:
-        pygame.draw.circle(screen, ENEMY_COLOR, (enemy[0], enemy[1]), 20)
+        pygame.draw.circle(screen, ENEMY_COLOR, (enemy[0], enemy[1]), 10)
 
     # Show the number of coins
     font = pygame.font.Font(None, 36)
