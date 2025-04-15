@@ -1,19 +1,46 @@
-# Welcome to **cyberStack**!
+# 🛡️ CyberStack
 
-## About the Game
-cyberStack is an exciting expansion to the classic Minecraft experience. Dive into a world filled with new challenges, unique biomes, and custom adventures. Whether you're a builder, explorer, or fighter, there's something for everyone!
+Welcome to **CyberStack** — a simple but fun game where you defend your base from waves of enemies!
 
-## Features
-- **Custom Biomes**: Explore breathtaking new landscapes.
-- **Unique Mobs**: Encounter creatures you've never seen before.
-- **Challenging Quests**: Complete story-driven missions and earn rewards.
+---
 
-## How to Play
-1. Download and install the game mod from [your website or platform].
-2. Launch cyberStack.
-3. Start exploring, building, and completing quests!
+## 🎮 How to Play
 
+- You're the **base** 🟩  
+- Enemies 🔴 will come in waves!  
+- You shoot them automatically — try to survive as long as you can!
 
-## Credits
-- Developed by: **Whitryse**
-- Special Thanks: **The Minecraft Community**
+---
+
+## 💰 Coins & 💎 Gems
+
+- **Coins**: Collect during the game  
+  - Use them to buy upgrades like faster shooting or stronger bullets!
+- **Gems**: Use on the **home screen**  
+  - Spend gems to **upgrade your base** and get stronger forever!
+
+---
+
+## 🕹️ Controls
+
+- Use your mouse to click buttons and upgrades.  
+- Everything else is automatic!
+
+---
+
+## 🧠 Tips
+
+- Don’t let enemies touch your base!  
+- Upgrade smart: stronger bullets, fewer enemies, more coins...  
+- Gems are rare — use them wisely!
+
+---
+
+## 🚀 How to Start
+
+1. Double click the game file (or run `cyberStack.py` if you know how).  
+2. Start from the **home screen** and begin defending your base!
+
+---
+
+Good luck, Commander! 💪
