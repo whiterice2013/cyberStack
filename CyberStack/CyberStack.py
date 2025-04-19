@@ -13,19 +13,9 @@ BASE_COLOR = (0, 255, 0)
 ENEMY_COLOR = (255, 0, 0)
 LASER_COLOR = (0, 255, 255)
 
-# Game objects
-base_x, base_y = WIDTH // 2, HEIGHT // 2
-enemies = []
-lasers = []
-coins = 0
-
-# Timers
-laser_timer = 0
-laser_shot_speed = 100
-laser_speed = 20
-
 clock = pygame.time.Clock()
 font = pygame.font.Font(None, 36)
+
 
 def draw_hexagon(surface, color, center, size, width=0):
     points = []
@@ -36,102 +26,151 @@ def draw_hexagon(surface, color, center, size, width=0):
         points.append((x, y))
     pygame.draw.polygon(surface, color, points, width)
 
-def spawn_enemies():
-    for _ in range(random.randint(1, 3)):
-        if random.choice([True, False]):
-            x = random.choice([0, WIDTH])
-            y = random.uniform(0, HEIGHT)
-        else:
-            x = random.uniform(0, WIDTH)
-            y = random.choice([0, HEIGHT])
-        enemies.append([x, y])
 
-wave = 1
+class Base:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def draw(self, surface):
+        for glow in range(1, 25):
+            glow_size = 30 + glow * glow / (glow / 2)
+            fade = max(0, 255 - glow * 50)
+            color = (0, fade, 0)
+            draw_hexagon(surface, color, (self.x, self.y), glow_size, width=5)
+        for glow in range(1, 25):
+            glow_size = 30 - glow * glow / (glow / 2)
+            fade = max(0, 255 - glow * 50)
+            color = (0, fade, 0)
+            draw_hexagon(surface, color, (self.x, self.y), glow_size, width=5)
+        draw_hexagon(surface, BASE_COLOR, (self.x, self.y), 30, width=5)
+
+
+class Enemy:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def move_towards(self, target_x, target_y):
+        dx = target_x - self.x
+        dy = target_y - self.y
+        dist = math.hypot(dx, dy)
+        if dist != 0:
+            dx /= dist
+            dy /= dist
+        if dist > 35:
+            self.x += dx
+            self.y += dy
+
+    def draw(self, surface):
+        for glow in range(1, 5):
+            glow_size = 10 + glow * glow / (glow / 2)
+            fade = max(0, 255 - glow * 50)
+            color = (fade, 0, 0)
+            pygame.draw.circle(surface, color, (self.x, self.y), glow_size, width=5)
+        pygame.draw.circle(surface, ENEMY_COLOR, (self.x, self.y), 10, 2)
+
+
+class Laser:
+    def __init__(self, x, y, dx, dy):
+        self.x = x
+        self.y = y
+        self.dx = dx
+        self.dy = dy
+
+    def move(self, speed):
+        self.x += self.dx * speed
+        self.y += self.dy * speed
+
+    def draw(self, surface):
+        pygame.draw.circle(surface, LASER_COLOR, (int(self.x), int(self.y)), 5)
+
+
+class Game:
+    def __init__(self):
+        self.base = Base(WIDTH // 2, HEIGHT // 2)
+        self.enemies = []
+        self.lasers = []
+        self.coins = 0
+        self.laser_timer = 0
+        self.laser_shot_speed = 100
+        self.laser_speed = 20
+        self.wave = 1
+
+    def spawn_enemies(self):
+        for _ in range(random.randint(1, 3)):
+            if random.choice([True, False]):
+                x = random.choice([0, WIDTH])
+                y = random.uniform(0, HEIGHT)
+            else:
+                x = random.uniform(0, WIDTH)
+                y = random.choice([0, HEIGHT])
+            self.enemies.append(Enemy(x, y))
+
+    def fire_laser(self):
+        if self.enemies:
+            target = min(self.enemies, key=lambda e: math.hypot(e.x - self.base.x, e.y - self.base.y))
+            dx = target.x - self.base.x
+            dy = target.y - self.base.y
+            dist = math.hypot(dx, dy)
+            if dist != 0:
+                dx /= dist
+                dy /= dist
+            self.lasers.append(Laser(self.base.x, self.base.y, dx, dy))
+
+    def update(self):
+        # Spawn enemies
+        if pygame.time.get_ticks() % random.randint(3000, 4000) / (self.wave / 3) < 20:
+            self.spawn_enemies()
+
+        # Increase difficulty
+        if pygame.time.get_ticks() % 10000 < 20:
+            self.wave += 1
+            self.laser_speed += 2
+
+        # Fire laser
+        self.laser_timer += 1
+        if self.laser_timer >= self.laser_shot_speed:
+            self.laser_timer = 0
+            self.fire_laser()
+
+        # Update lasers
+        for laser in self.lasers[:]:
+            laser.move(self.laser_speed)
+            for enemy in self.enemies:
+                if math.hypot(enemy.x - laser.x, enemy.y - laser.y) < 10:
+                    self.enemies.remove(enemy)
+                    self.lasers.remove(laser)
+                    self.coins += 1
+                    break
+            if not (0 <= laser.x <= WIDTH and 0 <= laser.y <= HEIGHT):
+                self.lasers.remove(laser)
+
+        # Move enemies
+        for enemy in self.enemies:
+            enemy.move_towards(self.base.x, self.base.y)
+
+    def draw(self):
+        screen.fill((0, 0, 0))
+        self.base.draw(screen)
+        for enemy in self.enemies:
+            enemy.draw(screen)
+        for laser in self.lasers:
+            laser.draw(screen)
+        text = font.render(f"Coins: {self.coins}", True, (255, 255, 255))
+        screen.blit(text, (10, 10))
+        pygame.display.update()
 
 
 # Game loop
+game = Game()
 running = True
 while running:
-    screen.fill((0, 0, 0))
     clock.tick(60)
-
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-
-    # Spawn enemies
-    if pygame.time.get_ticks() % random.randint(2000, 3000)/wave < 20:
-        spawn_enemies()
-
-    # Fire laser
-    laser_timer += 1
-    if laser_timer >= laser_shot_speed and enemies:
-        laser_timer = 0
-        target = min(enemies, key=lambda e: math.hypot(e[0] - base_x, e[1] - base_y))
-        dx = target[0] - base_x
-        dy = target[1] - base_y
-        dist = math.hypot(dx, dy)
-        if dist != 0:
-            dx /= dist
-            dy /= dist
-        lasers.append({"x": base_x, "y": base_y, "dx": dx, "dy": dy})
-
-    # Update lasers
-    for laser in lasers[:]:
-        laser["x"] += laser["dx"] * laser_speed
-        laser["y"] += laser["dy"] * laser_speed
-
-        for enemy in enemies:
-            if math.hypot(enemy[0] - laser["x"], enemy[1] - laser["y"]) < 10:
-                enemies.remove(enemy)
-                lasers.remove(laser)
-                coins += 1
-                break
-
-        if not (0 <= laser["x"] <= WIDTH and 0 <= laser["y"] <= HEIGHT):
-            lasers.remove(laser)
-
-    # Move enemies
-    for enemy in enemies:
-        dx = base_x - enemy[0]
-        dy = base_y - enemy[1]
-        dist = math.hypot(dx, dy)
-        if dist != 0:
-            dx /= dist
-            dy /= dist
-        enemy[0] += dx
-        enemy[1] += dy
-
-    # Draw base
-    for x in range(1, 25):
-        glow_size = 30 + x * x / (x / 2)
-        fade = max(0, 255 - x * 50)
-        color = (0, fade, 0)
-        draw_hexagon(screen, color, (base_x, base_y), glow_size, width=5)
-    for x in range(1, 25):
-        glow_size = 30 - x * x / (x / 2)
-        fade = max(0, 255 - x * 50)
-        color = (0, fade, 0)
-        draw_hexagon(screen, color, (base_x, base_y), glow_size, width=5)
-    draw_hexagon(screen, BASE_COLOR, (base_x, base_y), 30, width=5)
-
-    # Draw enemies
-    for enemy in enemies:
-        for x in range(1, 5):
-            glow_size = 10 + x * x / (x / 2)
-            fade = max(0, 255 - x * 50)
-            color = (fade, 0, 0)
-            pygame.draw.circle(screen, color, (enemy[0], enemy[1]), glow_size, width=5)
-        pygame.draw.circle(screen, ENEMY_COLOR, (enemy[0], enemy[1]), 10, 2)
-
-    # Draw short laser as dot
-    for laser in lasers:
-        pygame.draw.circle(screen, LASER_COLOR, (int(laser["x"]), int(laser["y"])), 5)
-
-    # Draw coins
-    text = font.render(f"Coins: {coins}", True, (255, 255, 255))
-    screen.blit(text, (10, 10))
-
-    pygame.display.update()
+    game.update()
+    game.draw()
 
 pygame.quit()
