@@ -6,7 +6,7 @@ class Game:
         shop_button_rect,
         BUTTON_COLOR,
         BUTTON_HOVER_COLOR,
-        ENEMY_COLOR,
+        ENEMY_COLOR_PACK,
         LASER_COLOR,
         WIDTH,
         HEIGHT,
@@ -35,7 +35,7 @@ class Game:
 
         self.BUTTON_COLOR = BUTTON_COLOR
         self.BUTTON_HOVER_COLOR = BUTTON_HOVER_COLOR
-        self.ENEMY_COLOR = ENEMY_COLOR
+        self.ENEMY_COLOR_PACK = ENEMY_COLOR_PACK
         self.LASER_COLOR = LASER_COLOR
         self.WIDTH = WIDTH
         self.HEIGHT = HEIGHT
@@ -113,7 +113,7 @@ class Game:
             btn.cost = int(btn.cost * 1.5)
 
     def spawn_enemies(self):
-        for _ in range(self.random.randint(1, self.wave + 1)):
+        for _ in range(self.random.randint(0, int(self.wave * 0.29)+1)):
             x = (
                 self.random.choice([0, self.WIDTH])
                 if self.random.choice([True, False])
@@ -124,10 +124,42 @@ class Game:
                 if not self.random.choice([True, False])
                 else self.random.uniform(0, self.HEIGHT)
             )
-            if x == 0 and y == 0 or x == self.WIDTH and y == self.HEIGHT:
+
+
+            if x == 0 or y == 0 or x == self.WIDTH or y == self.HEIGHT:
                 self.enemies.append(
                     self.enemy(
-                        x, y, self.fade_color, self.ENEMY_COLOR, self.pygame, self.math
+                        x,
+                        y,
+                        "default",
+                        self.fade_color,
+                        self.ENEMY_COLOR_PACK["default"],
+                        self.pygame,
+                        self.math,
+                    )
+                )
+            if self.random.randint(0, 7) == 0:
+                self.enemies.append(
+                    self.enemy(
+                        x,
+                        y,
+                        "fast",
+                        self.fade_color,
+                        self.ENEMY_COLOR_PACK["fast"],
+                        self.pygame,
+                        self.math,
+                    )
+                )
+            if self.random.randint(0, 30) == 0:
+                self.enemies.append(
+                    self.enemy(
+                        x,
+                        y,
+                        "curve",
+                        self.fade_color,
+                        self.ENEMY_COLOR_PACK["curve"],
+                        self.pygame,
+                        self.math,
                     )
                 )
 

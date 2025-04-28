@@ -6,7 +6,7 @@ from entity.laser import Laser
 
 from settings.game_settings import (
     BASE_COLOR,
-    ENEMY_COLOR,
+    ENEMY_COLOR_PACK,
     LASER_COLOR,
     BUTTON_COLOR,
     BUTTON_HOVER_COLOR,
@@ -29,6 +29,7 @@ pygame.display.set_caption("CyberStack")
 clock = pygame.time.Clock()
 font = pygame.font.Font(None, 36)
 
+
 def draw_hexagon(surface, color, center, size, width):
     points = []
     for angle in range(0, 360, 60):
@@ -42,6 +43,7 @@ def draw_hexagon(surface, color, center, size, width):
 def fade_color(color, fade):
     return (max(0, color[0] - fade), max(0, color[1] - fade), max(0, color[2] - fade))
 
+
 # Game loop
 
 game = Game(
@@ -50,7 +52,7 @@ game = Game(
     pygame.Rect(WIDTH - 150, 70, 120, 40),
     BUTTON_COLOR,
     BUTTON_HOVER_COLOR,
-    ENEMY_COLOR,
+    ENEMY_COLOR_PACK,
     LASER_COLOR,
     WIDTH,
     HEIGHT,
